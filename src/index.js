@@ -52,7 +52,7 @@ app.use(
 app.get('/test', (req, res, next) => {
   res.status(200).json({
     success: true,
-    message: 'API is working',
+    message: 'API is working fine',
   });
 });
 
