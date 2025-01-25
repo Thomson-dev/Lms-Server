@@ -6,7 +6,7 @@ import http from 'http';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import { rateLimit } from 'express-rate-limit';
-import connectDB from './models/Db.js';
+import connectDB from './utils/db.js';
 import { ErrorMiddleware } from './middlewares/error.js';
 import userRouter from './routes/userRoutes.js';
 
