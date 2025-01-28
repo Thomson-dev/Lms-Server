@@ -16,6 +16,9 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 8000;
 
+// Enable trust proxy
+app.set('trust proxy', 1);
+
 // body parser
 app.use(express.json({ limit: '50mb' }));
 
@@ -47,6 +50,8 @@ app.use(
 //   analyticsRouter,
 //   layoutRouter
 );
+
+
 
 // testing api
 app.get('/', (req, res, next) => {
