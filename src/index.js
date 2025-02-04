@@ -33,7 +33,16 @@ const limiter = rateLimit({
 app.use(limiter);
 
 // Enable CORS for cross-origin requests
-app.use(cors());
+// Configure CORS
+const corsOptions = {
+  origin: 'exp://192.168.155.95:8081', // Replace with your frontend's origin
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  credentials: true,
+  optionsSuccessStatus: 204,
+};
+
+app.use(cors(corsOptions));
+
 
 // Body parser for handling JSON payloads
 app.use(express.json({ limit: "50mb" }));
