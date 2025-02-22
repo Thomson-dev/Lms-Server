@@ -72,14 +72,7 @@ const courseSchema = new Schema({
     public_id: {
       type: String,
     },
-    pdf: {
-    public_id: {
-      type: String,
-    },
-    url: {
-      type: String,
-    },
-  },
+ 
   },
   tags: {
     type: String,
