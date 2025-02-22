@@ -35,7 +35,7 @@ app.use(limiter);
 // Enable CORS for cross-origin requests
 // Configure CORS
 const corsOptions = {
-  origin: 'exp://192.168.155.95:8081', // Replace with your frontend's origin
+  origin: ['exp://192.168.155.95:8081', 'http://localhost:5173'], // Add your frontend's origins
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   credentials: true,
   optionsSuccessStatus: 204,
