@@ -3,6 +3,7 @@ import ErrorHandler from "../utils/ErrorHandler.js";
 import { v2 as cloudinary } from "cloudinary";
 import { createCourse } from "../services/courseService.js";
 import CourseModel from "../models/courseModel.js";
+import axios from "axios";
 
 export const uploadCourse = CatchAsyncError(async (req, res, next) => {
   try {
