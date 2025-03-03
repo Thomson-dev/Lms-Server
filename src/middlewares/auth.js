@@ -7,35 +7,64 @@ import { updateAccessToken } from '../controllers/userController.js';
 
 // authenticated user
 export const isAuthenticated = CatchAsyncError(async (req, res, next) => {
-  const authHeader = req.headers['authorization'];
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return next(new ErrorHandler('Please login to access this resource', 400));
-  }
-  const access_token = authHeader.split(' ')[1];
-  const decoded = jwt.decode(access_token);
-  if (!decoded) {
-    return next(new ErrorHandler('Access token is not valid', 400));
+  const authHeader = req.headers["authorization"];
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return next(new ErrorHandler("Please login to access this resource", 401));
   }
 
-  // check if the access token is expired
-  if (decoded.exp && decoded.exp <= Date.now() / 1000) {
-    try {
-      await updateAccessToken(req, res, next);
-    } catch (error) {
-      return next(error);
-    }
-  } else {
+  let access_token = authHeader.split(" ")[1];
+
+  try {
+    // Verify access token
+    const decoded = jwt.verify(access_token, process.env.ACCESS_TOKEN);
     const user = await redis.get(decoded.id);
 
     if (!user) {
-      return next(new ErrorHandler('Please login to access this resource', 400));
+      return next(new ErrorHandler("Please login to access this resource", 401));
     }
 
     req.user = JSON.parse(user);
+    return next();
+  } catch (err) {
+    if (err.name === "TokenExpiredError") {
+      try {
+        // Call API to refresh token
+        const response = await fetch("http://localhost:8000/api/refresh-token", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "refresh-token": req.headers["refresh-token"],
+          },
+        });
 
-    next();
+        const data = await response.json();
+        if (!data.success) {
+          return next(new ErrorHandler("Failed to refresh token", 401));
+        }
+
+        // Update authorization header with new token
+        req.headers["authorization"] = `Bearer ${data.accessToken}`;
+
+        // Verify the new token
+        const newDecoded = jwt.verify(data.accessToken, process.env.ACCESS_TOKEN);
+        const newUser = await redis.get(newDecoded.id);
+
+        if (!newUser) {
+          return next(new ErrorHandler("Please login to access this resource", 401));
+        }
+
+        req.user = JSON.parse(newUser);
+        return next();
+      } catch (error) {
+        return next(new ErrorHandler("Failed to refresh token", 401));
+      }
+    }
+
+    return next(new ErrorHandler("Invalid access token", 401));
   }
 });
+
+
 
 // validate user role
 export const authorizeRoles = (...roles) => {

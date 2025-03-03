@@ -78,7 +78,7 @@ export const activateUser = CatchAsyncError(async (req, res, next) => {
   try {
     const { activation_token, activation_code } = req.body;
 
-    const newUser = jwt.verify(activation_token, process.env.ACTIVATION_SECRET);
+    const newUser = jwt.verify(activation_token, process.env.ACTIVATION_TOKEN);
 
     if (newUser.activationCode !== activation_code) {
       return next(new ErrorHandler("Invalid activation code", 400));
@@ -105,6 +105,10 @@ export const activateUser = CatchAsyncError(async (req, res, next) => {
   }
 });
 
+
+
+
+
 export const loginUser = CatchAsyncError(async (req, res, next) => {
   try {
     const { email, password } = req.body;
@@ -129,6 +133,13 @@ export const loginUser = CatchAsyncError(async (req, res, next) => {
   }
 });
 
+
+
+
+
+
+
+
 export const logoutUser = CatchAsyncError(async (req, res, next) => {
   try {
     const userId = req.user?._id || "";
@@ -142,34 +153,46 @@ export const logoutUser = CatchAsyncError(async (req, res, next) => {
   }
 });
 
-export const updateAccessToken = CatchAsyncError(async (req, res, next) => {
+
+
+
+
+
+export const updateAccessToken = async (req, res, next) => {
   try {
     const refresh_token = req.headers["refresh-token"];
+    if (!refresh_token) {
+      return next(new ErrorHandler("Refresh token is required!", 401));
+    }
+
+    // Verify the refresh token
     const decoded = jwt.verify(refresh_token, process.env.REFRESH_TOKEN);
 
-    const message = "Could not refresh token";
-    if (!decoded) {
-      return next(new ErrorHandler(message, 400));
-    }
+    // Check if session exists
     const session = await redis.get(decoded.id);
-
     if (!session) {
-      return next(
-        new ErrorHandler("Please login for access this resources!", 400)
-      );
+      return next(new ErrorHandler("Session expired, please log in again!", 403));
     }
 
     const user = JSON.parse(session);
 
-    req.user = user;
+    // Generate a new access token
+    const newAccessToken = jwt.sign(
+      { id: user._id, role: user.role },
+      process.env.ACCESS_TOKEN,
+      { expiresIn: "15m" }
+    );
 
-    await redis.set(user._id, JSON.stringify(user), "EX", 604800); // 7days
+    // Refresh session expiration
+    await redis.set(user._id, JSON.stringify(user), "EX", 604800); // 7 days
 
-    return next();
+    // Send the new access token as a response
+    res.status(200).json({ success: true, accessToken: newAccessToken });
   } catch (error) {
-    return next(new ErrorHandler(error.message, 400));
+    return next(new ErrorHandler("Invalid or expired refresh token", 401));
   }
-});
+};
+
 
 export const getUserInfo = CatchAsyncError(async (req, res, next) => {
   try {

@@ -5,6 +5,7 @@ import {
   loginUser,
   logoutUser,
   registrationUser,
+  updateAccessToken,
   updateUserInfo,
 } from "../controllers/userController.js";
 import { authorizeRoles, isAuthenticated } from "../middlewares/auth.js";
@@ -19,5 +20,7 @@ userRouter.get("/logout", isAuthenticated, logoutUser);
 
 userRouter.get("/me", isAuthenticated, getUserInfo);
 userRouter.put("/update-user-info", isAuthenticated, updateUserInfo);
+
+userRouter.post("/refresh-token",  updateAccessToken);
 
 export default userRouter;
