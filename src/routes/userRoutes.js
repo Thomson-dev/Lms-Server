@@ -16,10 +16,17 @@ const userRouter = express.Router();
 userRouter.post("/registration", registrationUser);
 
 userRouter.post("/activate-user", activateUser);
+
 userRouter.post("/login", loginUser);
+
 userRouter.get("/logout", isAuthenticated, logoutUser);
-userRouter.put("/update-user-profile", updateProfilePicture);
+
+
+userRouter.put("/update-user-avatar", updateProfilePicture);
+
 userRouter.get("/me", isAuthenticated, getUserInfo);
+
+
 userRouter.put("/update-user-info", isAuthenticated, updateUserInfo);
 
 userRouter.post("/refresh-token", updateAccessToken);
