@@ -240,8 +240,13 @@ export const updateProfilePicture = CatchAsyncError(async (req, res, next) => {
       await cloudinary.v2.uploader.destroy(user.avatar.public_id);
     }
 
+    // Ensure the avatar string is prefixed correctly
+    const base64Image = avatar.startsWith("data:image/")
+      ? avatar
+      : `data:image/png;base64,${avatar}`;
+
     // Upload the new image
-    const myCloud = await cloudinary.v2.uploader.upload(avatar, {
+    const myCloud = await cloudinary.v2.uploader.upload(base64Image, {
       folder: "avatars",
       width: 150,
     });
