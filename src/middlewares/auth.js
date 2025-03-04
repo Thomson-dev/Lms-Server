@@ -29,7 +29,7 @@ export const isAuthenticated = CatchAsyncError(async (req, res, next) => {
     if (err.name === "TokenExpiredError") {
       try {
         // Call API to refresh token
-        const response = await fetch("http://localhost:8000/api/refresh-token", {
+        const response = await fetch("https://lms-server-oqfi.onrender.com/api/refresh-token", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

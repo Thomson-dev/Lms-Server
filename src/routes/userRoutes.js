@@ -22,9 +22,9 @@ userRouter.post("/login", loginUser);
 userRouter.get("/logout", isAuthenticated, logoutUser);
 
 
-userRouter.put("/update-user-avatar", updateProfilePicture);
+userRouter.put("/update-user-avatar", isAuthenticated, updateProfilePicture);
 
-userRouter.get("/me", isAuthenticated, getUserInfo);
+userRouter.get("/me", isAuthenticated,  getUserInfo);
 
 
 userRouter.put("/update-user-info", isAuthenticated, updateUserInfo);
