@@ -69,10 +69,8 @@ const courseSchema = new Schema({
     type: Number,
   },
   thumbnail: {
-    public_id: {
-      type: String,
-    },
- 
+    public_id: String,
+    url: String,
   },
   tags: {
     type: String,

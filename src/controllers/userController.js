@@ -232,8 +232,8 @@ export const updateProfilePicture = CatchAsyncError(async (req, res, next) => {
     }
 
     // Log the user and avatar details for debugging
-    console.log("User ID:", userId);
-    console.log("Avatar:", avatar);
+    // console.log("User ID:", userId);
+    // console.log("Avatar:", avatar);
 
     if (user.avatar?.public_id) {
       // Delete the old image
