@@ -9,9 +9,9 @@ import { rateLimit } from "express-rate-limit";
 import connectDB from "./utils/db.js";
 import { ErrorMiddleware } from "./middlewares/error.js";
 import userRouter from "./routes/userRoutes.js";
+import orderRouter from "./routes/orderRoutes.js";
 import courseRouter from "./routes/courseRoutes.js";
-// Uncomment and import other routes as needed
-// import orderRouter from './routes/orderRoutes.js';
+
 
 dotenv.config();
 
@@ -51,7 +51,7 @@ app.use(express.json({ limit: "50mb" }));
 app.use(cookieParser());
 
 // Routes
-app.use("/api", userRouter, courseRouter);
+app.use("/api", userRouter, courseRouter, orderRouter);
 
 // Uncomment when needed
 // app.use('/api/orders', orderRouter);

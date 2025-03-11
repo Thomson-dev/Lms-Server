@@ -1,6 +1,16 @@
 import { CatchAsyncError } from "../middlewares/catchAsyncErrors.js";
 import ErrorHandler from "../utils/ErrorHandler.js";
-import stripe from "stripe"; // Ensure you have initialized Stripe with your secret key
+import express from "express";
+import Stripe from "stripe";
+import dotenv from "dotenv";
+
+dotenv.config(); 
+
+const app = express();
+app.use(express.json());
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+
 
 // new payment
 export const newPayment = CatchAsyncError(async (req, res, next) => {
