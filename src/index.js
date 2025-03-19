@@ -53,8 +53,7 @@ app.use(cookieParser());
 // Routes
 app.use("/api", userRouter, courseRouter, orderRouter);
 
-// Uncomment when needed
-// app.use('/api/orders', orderRouter);
+
 
 // Root route for testing
 app.get("/", (req, res) => {
