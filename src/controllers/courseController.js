@@ -158,3 +158,66 @@ export const submitQuiz = CatchAsyncError(async (req, res, next) => {
     score,
   });
 });
+
+
+
+
+export const addCommentToCourse = CatchAsyncError(async (req, res, next) => {
+  const { courseId, courseDataId, user, question } = req.body;
+
+  const course = await CourseModel.findById(courseId);
+
+  if (!course) {
+    return next(new ErrorHandler("Course not found", 404));
+  }
+
+  const courseData = course.courseData.id(courseDataId);
+
+  if (!courseData) {
+    return next(new ErrorHandler("Course data not found", 404));
+  }
+
+  const newComment = {
+    user,
+    question,
+    questionReplies: [],
+  };
+
+  courseData.questions.push(newComment);
+
+  await course.save();
+
+  res.status(201).json({
+    success: true,
+    course,
+  });
+});
+
+
+export const getCourseByUser = CatchAsyncError(async (req, res, next) => {
+  try {
+    const userCourseList = req.user?.courses;
+    const courseId = req.params.id;
+
+    const courseExists = userCourseList?.find(
+      (course) => course._id.toString() === courseId
+    );
+
+    if (!courseExists) {
+      return next(
+        new ErrorHandler("You are not eligible to access this course", 404)
+      );
+    }
+
+    const course = await CourseModel.findById(courseId);
+
+    const content = course?.courseData;
+
+    res.status(200).json({
+      success: true,
+      content,
+    });
+  } catch (error) {
+    return next(new ErrorHandler(error.message, 500));
+  }
+});

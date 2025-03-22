@@ -5,13 +5,11 @@ import Stripe from "stripe";
 import dotenv from "dotenv";
 import userModel from "../models/userModel.js";
 import CourseModel from "../models/courseModel.js";
-
+import NotificationModel from "../models/NotificationModal.js";
 import { newOrder } from "../services/orderService.js";
-
 import ejs from "ejs";
 import path from "path";
-
-import NotificationModel from "../models/NotificationModal.js";
+import { fileURLToPath } from "url";
 import { redis } from "../utils/redis.js";
 import sendMail from "../utils/sendMail.js";
 
@@ -24,7 +22,11 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
   apiVersion: "2020-08-27",
 });
 
-// new payment
+// Define __dirname correctly for ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// New payment
 export const newPayment = CatchAsyncError(async (req, res, next) => {
   try {
     const myPayment = await stripe.paymentIntents.create({
@@ -47,7 +49,8 @@ export const newPayment = CatchAsyncError(async (req, res, next) => {
   }
 });
 
-// create order for mobile
+// Create order for mobile
+
 export const createMobileOrder = CatchAsyncError(async (req, res, next) => {
   try {
     const { courseId, payment_info } = req.body;
@@ -111,12 +114,6 @@ export const createMobileOrder = CatchAsyncError(async (req, res, next) => {
     await redis.set(req.user?._id, JSON.stringify(user));
 
     await user?.save();
-
-    await NotificationModel.create({
-      user: user?._id,
-      title: "New Order",
-      message: `You have a new order from ${course?.name}`,
-    });  
 
     course.purchased = course.purchased + 1;
 
