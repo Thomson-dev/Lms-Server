@@ -60,27 +60,31 @@ export const getAllCourses = CatchAsyncError(async (req, res, next) => {
 });
 
 
-export const generateVideoUrl = CatchAsyncError(
-  async (req, res, next) => {
-    try {
-      const { videoId } = req.body;
-      const response = await axios.post(
-        `https://dev.vdocipher.com/api/videos/${videoId}/otp`,
-        { ttl: 300 },
-        {
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-            Authorization: `Apisecret ${process.env.VDOCIPHER_API_SECRET}`,
-          },
-        }
-      );
-      res.json(response.data);
-    } catch (error) {
-      return next(new ErrorHandler(error.message, 400));
-    }
+export const generateVideoUrl = async (req, res, next) => {
+  try {
+    const { videoUrl } = req.body;
+
+    // Extract Video ID from YouTube URL
+    const extractYouTubeVideoId = (url) => {
+      const regex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
+      const match = url.match(regex);
+      return match ? match[1] : null;
+    };
+
+    const videoId = extractYouTubeVideoId(videoUrl);
+    if (!videoId) return next(new ErrorHandler("Invalid YouTube URL", 400));
+
+    // Return the embeddable YouTube video URL
+    res.json({
+      success: true,
+      videoId,
+      embedUrl: `https://www.youtube.com/embed/${videoId}`,
+    });
+  } catch (error) {
+    return next(new ErrorHandler(error.message, 500));
   }
-);
+};
+
 
 
 
@@ -216,6 +220,29 @@ export const getCourseByUser = CatchAsyncError(async (req, res, next) => {
     res.status(200).json({
       success: true,
       content,
+    });
+  } catch (error) {
+    return next(new ErrorHandler(error.message, 500));
+  }
+});
+
+
+// Get enrolled courses
+export const getEnrolledCourses = CatchAsyncError(async (req, res, next) => {
+  try {
+    const userCourseList = req.user?.courses;
+
+    if (!userCourseList || userCourseList.length === 0) {
+      return next(new ErrorHandler("No courses found for this user", 404));
+    }
+
+    const courses = await CourseModel.find({
+      _id: { $in: userCourseList.map(course => course._id) }
+    });
+
+    res.status(200).json({
+      success: true,
+      courses,
     });
   } catch (error) {
     return next(new ErrorHandler(error.message, 500));
