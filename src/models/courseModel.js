@@ -22,18 +22,7 @@ const commentSchema = new Schema({
   questionReplies: [Object],
 }, { timestamps: true });
 
-const quizSchema = new Schema({
-  question: {
-    type: String,
-    required: true,
-  },
-  options: [
-    {
-      option: String,
-      isCorrect: Boolean,
-    },
-  ],
-}, { timestamps: true });
+
 
 const courseDataSchema = new Schema({
   videoUrl: String,
@@ -100,7 +89,7 @@ const courseSchema = new Schema({
 
   reviews: [reviewSchema],
   courseData: [courseDataSchema],
-  quizzes: [quizSchema],
+ 
   ratings: {
     type: Number,
     default: 0,

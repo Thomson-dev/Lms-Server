@@ -11,6 +11,7 @@ import { ErrorMiddleware } from "./middlewares/error.js";
 import userRouter from "./routes/userRoutes.js";
 import orderRouter from "./routes/orderRoutes.js";
 import courseRouter from "./routes/courseRoutes.js";
+import QuizRouter from "./routes/quizRoutes.js"
 
 
 dotenv.config();
@@ -51,7 +52,7 @@ app.use(express.json({ limit: "50mb" }));
 app.use(cookieParser());
 
 // Routes
-app.use("/api", userRouter, courseRouter, orderRouter);
+app.use("/api", userRouter, courseRouter, orderRouter, QuizRouter);
 
 
 

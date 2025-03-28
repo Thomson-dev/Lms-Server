@@ -87,82 +87,28 @@ export const generateVideoUrl = async (req, res, next) => {
 
 
 
-
-
-// Add a quiz to a course
-export const addQuizToCourse = CatchAsyncError(async (req, res, next) => {
-  const { courseId, quiz } = req.body;
-
-  if (!courseId || !quiz) {
-    return next(new ErrorHandler("Course ID and quiz data are required", 400));
-  }
-
-  const course = await CourseModel.findById(courseId);
-
-  if (!course) {
-    return next(new ErrorHandler("Course not found", 404));
-  }
-
-  course.quizzes.push(quiz);
-  await course.save();
-
-  res.status(201).json({
-    success: true,
-    course,
-  });
-});
-
-
-// Get quizzes for a course
-export const getQuizzesForCourse = CatchAsyncError(async (req, res, next) => {
+// Delete a course (admin only)
+export const deleteCourse = CatchAsyncError(async (req, res, next) => {
   const { courseId } = req.params;
 
-  const course = await CourseModel.findById(courseId).select("quizzes");
-
-  if (!course) {
-    return next(new ErrorHandler("Course not found", 404));
-  }
-
-  res.status(200).json({
-    success: true,
-    quizzes: course.quizzes,
-  });
-});
-
-
-// Submit a quiz and evaluate answers
-export const submitQuiz = CatchAsyncError(async (req, res, next) => {
-  const { courseId, quizId, answers } = req.body;
-
-  if (!courseId || !quizId || !answers) {
-    return next(new ErrorHandler("Course ID, quiz ID, and answers are required", 400));
-  }
-
   const course = await CourseModel.findById(courseId);
 
   if (!course) {
     return next(new ErrorHandler("Course not found", 404));
   }
 
-  const quiz = course.quizzes.id(quizId);
-
-  if (!quiz) {
-    return next(new ErrorHandler("Quiz not found", 404));
+  // Optionally, delete associated resources (e.g., Cloudinary assets)
+  if (course.thumbnail?.public_id) {
+    await cloudinary.uploader.destroy(course.thumbnail.public_id);
   }
 
-  let score = 0;
-  quiz.options.forEach((option, index) => {
-    if (option.isCorrect && answers.includes(index)) {
-      score += 1;
-    }
-  });
+  await course.remove();
 
   res.status(200).json({
     success: true,
-    score,
+    message: "Course deleted successfully",
   });
 });
-
 
 
 
