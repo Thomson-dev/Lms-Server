@@ -178,13 +178,15 @@ export const getEnrolledCourses = CatchAsyncError(async (req, res, next) => {
   try {
     const userCourseList = req.user?.courses;
 
-    if (!userCourseList || userCourseList.length === 0) {
+    // Validate the user's course list
+    if (!Array.isArray(userCourseList) || userCourseList.length === 0) {
       return next(new ErrorHandler("No courses found for this user", 404));
     }
 
+    // Fetch the enrolled courses
     const courses = await CourseModel.find({
-      _id: { $in: userCourseList.map(course => course._id) }
-    });
+      _id: { $in: userCourseList.map((course) => course._id) },
+    }).select("title description thumbnail"); // Only return specific fields
 
     res.status(200).json({
       success: true,

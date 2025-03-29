@@ -5,6 +5,7 @@ import {
   generateVideoUrl,
   getAllCourses,
   getCourseByUser,
+  getEnrolledCourses,
   uploadCourse,
 } from "../controllers/courseController.js";
 import { isAuthenticated, authorizeRoles } from "../middlewares/auth.js";
@@ -36,5 +37,7 @@ courseRouter.post(
 
 courseRouter.get("/get-courses", getAllCourses);
 courseRouter.get("/get-course-content/:id", isAuthenticated, getCourseByUser);
+// Add the route for fetching enrolled courses
+courseRouter.get("/enrolled", isAuthenticated, getEnrolledCourses);
 
 export default courseRouter;
