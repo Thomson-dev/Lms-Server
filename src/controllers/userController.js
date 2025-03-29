@@ -69,7 +69,7 @@ const createActivationToken = (user) => {
     },
     process.env.ACTIVATION_SECRET,
     {
-      expiresIn: "5m",
+      expiresIn: "10m",
     }
   );
 
@@ -80,7 +80,8 @@ export const activateUser = CatchAsyncError(async (req, res, next) => {
   try {
     const { activation_token, activation_code } = req.body;
 
-    const newUser = jwt.verify(activation_token, process.env.ACTIVATION_TOKEN);
+    // Use the correct secret key
+    const newUser = jwt.verify(activation_token, process.env.ACTIVATION_SECRET);
 
     if (newUser.activationCode !== activation_code) {
       return next(new ErrorHandler("Invalid activation code", 400));
@@ -91,8 +92,9 @@ export const activateUser = CatchAsyncError(async (req, res, next) => {
     const existUser = await userModel.findOne({ email });
 
     if (existUser) {
-      return next(new ErrorHandler("Email already exist", 400));
+      return next(new ErrorHandler("Email already exists", 400));
     }
+
     const user = await userModel.create({
       name,
       email,
