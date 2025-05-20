@@ -7,7 +7,7 @@ import sendMail from "../utils/sendMail.js"; // Adjust the path as necessary
 import ErrorHandler from "../utils/ErrorHandler.js";
 import { CatchAsyncError } from "../middlewares/catchAsyncErrors.js";
 import { sendToken } from "../utils/jwt.js";
-import { redis } from "../utils/redis.js";
+
 import { getUserById } from "../services/userService.js";
 import cloudinary from "cloudinary";
 
@@ -202,7 +202,9 @@ export const updateAccessToken = async (req, res, next) => {
 
 export const getUserInfo = CatchAsyncError(async (req, res, next) => {
   try {
-    const userId = req.user?._id; // Extract the user ID from the authenticated user
+    const userId = req.user?._id;
+   console.log(userId)
+
     getUserById(userId, res); // Fetch user information and send the response
   } catch (error) {
     return next(new ErrorHandler(error.message, 400)); // Handle any errors
@@ -220,9 +222,7 @@ export const updateProfilePicture = CatchAsyncError(async (req, res, next) => {
     if (!avatar) {
       return next(new ErrorHandler("Avatar is required", 400));
     }
-
     const userId = req.user?._id;
-
     if (!userId) {
       return next(new ErrorHandler("User ID not found", 400));
     }
@@ -252,7 +252,6 @@ export const updateProfilePicture = CatchAsyncError(async (req, res, next) => {
       folder: "avatars",
       width: 150,
     });
-
     user.avatar = {
       public_id: myCloud.public_id,
       url: myCloud.secure_url,
@@ -308,7 +307,7 @@ export const updateUserInfo = CatchAsyncError(async (req, res, next) => {
 
     await user.save();
 
-    await redis.set(userId, JSON.stringify(user));
+
 
     res.status(200).json({
       success: true,

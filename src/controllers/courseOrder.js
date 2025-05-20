@@ -10,7 +10,7 @@ import { newOrder } from "../services/orderService.js";
 import ejs from "ejs";
 import path from "path";
 import { fileURLToPath } from "url";
-import { redis } from "../utils/redis.js";
+
 import sendMail from "../utils/sendMail.js";
 
 dotenv.config(); // Load environment variables
